@@ -19,7 +19,7 @@ protected:
 	FGameplayTag Event{};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimNotify")
-	EFoleyEventSide Side{EFoleyEventSide::None};
+	FName SocketName{NAME_None};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimNotify", Meta = (ClampMin = 0, ForceUnits = "x"))
 	float VolumeMultiplier{1.f};
@@ -47,6 +47,8 @@ protected:
 	uint8 bSpawnDecal : 1 {true};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimNotify|Particle System")
 	uint8 bSpawnParticleSystem : 1 {true};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimNotify")
+	uint8 bSpawnInAir : 1 {false};
 
 public:
 	UAnimNotify_FoleyEvent();
@@ -57,14 +59,16 @@ public:
 	virtual FString GetNotifyName_Implementation() const override;
 
 	UFUNCTION(Blueprintable, Category="Foley|Audio")
-	bool CanPlayFootstepEffects(const USkeletalMeshComponent* MeshComponent) const;
+	bool CanPlayFootstepEffects(AActor* Owner) const;
 
 	void SpawnSound(const USkeletalMeshComponent* Mesh, const struct FGASPFootstepSoundSettings& SoundSettings,
 	                const FVector& FootstepLocation) const;
 
 	void SpawnDecal(const USkeletalMeshComponent* Mesh, const struct FGASPFootstepDecalSettings& DecalSettings,
-	                const FVector& FootstepLocation, const FRotator& FootstepRotation, const FHitResult& FootstepHit) const;
+	                const FVector& FootstepLocation, const FRotator& FootstepRotation,
+	                const FHitResult& FootstepHit) const;
 
-	void SpawnParticleSystem(const USkeletalMeshComponent* Mesh, const struct FGASPFootstepParticleSettings& ParticleSystemSettings,
+	void SpawnParticleSystem(const USkeletalMeshComponent* Mesh,
+	                         const struct FGASPFootstepParticleSettings& ParticleSystemSettings,
 	                         const FVector& FootstepLocation, const FRotator& FootstepRotation) const;
 };

@@ -485,7 +485,6 @@ void AGASPCharacter::LinkAnimInstance(const UChooserTable* DataTable, const FGam
 
 	if (IsValid(DataAsset))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("instance [%s]"), *DataAsset->GetName())
 		MeshComponent->LinkAnimClassLayers(DataAsset->GetAnimInstance());
 	}
 }

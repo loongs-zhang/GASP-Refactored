@@ -17,7 +17,6 @@ public class GASP : ModuleRules
 			"Engine",
 			"NetCore",
 			"GameplayTags",
-			"MotionWarping",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -30,12 +29,13 @@ public class GASP : ModuleRules
 			"PhysicsCore",
 			"AnimGraphRuntime",
 			"Niagara",
+			"MotionWarping",
 		});
 
 		if (Target.Type == TargetRules.TargetType.Editor)
 			PrivateDependencyModuleNames.AddRange(new string[]
 			{
-				"GameplayDebugger"
+				"GameplayDebugger",
 			});
 	}
 }

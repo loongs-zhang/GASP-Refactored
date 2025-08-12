@@ -273,21 +273,21 @@ private:
 	void StartRagdollingImplementation();
 
 	UFUNCTION()
-	void OnRep_OverlayMode(const FGameplayTag& OldOverlayMode);
+	virtual void OnRep_OverlayMode(const FGameplayTag& OldOverlayMode);
 	UFUNCTION()
-	void OnRep_PoseMode(const FGameplayTag& OldPoseMode);
+	virtual void OnRep_PoseMode(const FGameplayTag& OldPoseMode);
 	UFUNCTION()
-	void OnRep_Gait(const EGait& OldGait);
+	virtual void OnRep_Gait(const EGait& OldGait);
 	UFUNCTION()
-	void OnRep_StanceMode(const FGameplayTag& OldStanceMode);
+	virtual void OnRep_StanceMode(const FGameplayTag& OldStanceMode);
 	UFUNCTION()
-	void OnRep_MovementMode(const FGameplayTag& OldMovementMode);
+	virtual void OnRep_MovementMode(const FGameplayTag& OldMovementMode);
 	UFUNCTION()
-	void OnRep_RotationMode(const ERotationMode& OldRotationMode);
+	virtual void OnRep_RotationMode(const ERotationMode& OldRotationMode);
 	UFUNCTION()
-	void OnRep_MovementState(const FGameplayTag& OldMovementState);
+	virtual void OnRep_MovementState(const FGameplayTag& OldMovementState);
 	UFUNCTION()
-	void OnRep_LocomotionAction(const FGameplayTag& OldLocomotionAction);
+	virtual void OnRep_LocomotionAction(const FGameplayTag& OldLocomotionAction);
 
 public:
 	bool IsRagdollingAllowedToStop() const;

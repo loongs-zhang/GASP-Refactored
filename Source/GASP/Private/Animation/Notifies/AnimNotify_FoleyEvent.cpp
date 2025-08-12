@@ -4,13 +4,11 @@
 #include "Animation/Notifies//AnimNotify_FoleyEvent.h"
 #include "BlueprintGameplayTagLibrary.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Actors/GASPCharacter.h"
 #include "Components/DecalComponent.h"
 #include "Foley/GASPFootstepEffectsSet.h"
 #include "Interfaces/GASPFoleyAudioBankInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Types/TagTypes.h"
-#include "VisualLogger/VisualLoggerKismetLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AnimNotify_FoleyEvent)
 
@@ -39,32 +37,32 @@ void UAnimNotify_FoleyEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	if (!CanPlayFootstepEffects(MeshComp) || !IsValid(DefaultBank))
+	auto* Owner = MeshComp->GetOwner();
+	if (!IsValid(Owner))
 	{
 		return;
 	}
 
-	const auto* Owner = MeshComp->GetOwner();
-	if (!IsValid(Owner))
+	if (!CanPlayFootstepEffects(Owner) || !IsValid(DefaultBank))
 	{
 		return;
 	}
 
 	const UWorld* WorldContext = Owner->GetWorld();
 
-	const FName SocketName{Side == EFoleyEventSide::Left ? TEXT("foot_l") : TEXT("foot_r")};
-	const auto SocketTransform{
-		MeshComp->GetSocketTransform(Side == EFoleyEventSide::None ? NAME_None : SocketName)
-	};
+	const auto SocketTransform{MeshComp->GetSocketTransform(SocketName)};
 
 	FCollisionQueryParams QueryParams{__FUNCTION__, true, Owner};
 	QueryParams.bReturnPhysicalMaterial = true;
 
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(Owner);
 	FHitResult Hit;
 	WorldContext->LineTraceSingleByChannel(Hit, SocketTransform.GetLocation(),
 	                                       SocketTransform.GetLocation() - FVector::ZAxisVector * TraceLength,
 	                                       ECC_Visibility, QueryParams);
-	if (!Hit.bBlockingHit)
+
+	if (!Hit.bBlockingHit && !bSpawnInAir)
 	{
 		return;
 	}
@@ -106,7 +104,7 @@ void UAnimNotify_FoleyEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		return;
 	}
 
-	// UVisualLoggerKismetLibrary::LogSphere(WorldContext->GetClass(), SphereCenter, 5.f, VisLogDebugText,
+	// UVisualLoggerKismetLibrary::LogSphere(WorldContext->GetClass(), SocketTransform.GetLocation(), 5.f, VisLogDebugText,
 	//                                       VisLogDebugColor, FName(TEXT("VisLogFoley")));
 	DrawDebugSphere(WorldContext, SocketTransform.GetLocation(), 10.f, 12, VisLogDebugColor.ToRGBE(),
 	                false, 4.f);
@@ -122,14 +120,8 @@ FString UAnimNotify_FoleyEvent::GetNotifyName_Implementation() const
 	return FString::Printf(TEXT("FoleyEvent: %s"), RightPart.IsEmpty() ? *TagName : *RightPart);
 }
 
-bool UAnimNotify_FoleyEvent::CanPlayFootstepEffects(const USkeletalMeshComponent* MeshComponent) const
+bool UAnimNotify_FoleyEvent::CanPlayFootstepEffects(AActor* Owner) const
 {
-	auto* Owner = MeshComponent->GetOwner();
-	if (!IsValid(Owner))
-	{
-		return false;
-	}
-
 	if (MovementTags.HasTag(Event) && Owner->Implements<UGASPFoleyAudioBankInterface>())
 	{
 		return IGASPFoleyAudioBankInterface::Execute_CanPlayFootstepEffects(Owner);
@@ -172,7 +164,7 @@ void UAnimNotify_FoleyEvent::SpawnDecal(const USkeletalMeshComponent* Mesh,
 
 	const auto DecalRotation{
 		FootstepRotation.Quaternion() * FQuat{
-			Side == EFoleyEventSide::Left
+			SocketName.ToString().EndsWith("_l")
 				? DecalSettings.FootLeftRotationOffset.Quaternion()
 				: DecalSettings.FootRightRotationOffset.Quaternion()
 		}
