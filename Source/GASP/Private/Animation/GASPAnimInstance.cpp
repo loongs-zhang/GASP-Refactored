@@ -21,7 +21,7 @@ namespace AnimVars
 	FAutoConsoleVariableRef EnabledStateMachineStruct(
 		TEXT("gasp.statemachine.enabled"), bUseExperimentalStateMachine, TEXT("enabled state machine"), ECVF_Default);
 
-	bool bOffsetRootBoneEnabled{false};
+	bool bOffsetRootBoneEnabled{true};
 	FAutoConsoleVariableRef OffsetRootBoneEnabledStruct(
 		TEXT("gasp.offsetrootbone.enabled"), bOffsetRootBoneEnabled, TEXT("enabled offset root bone"),
 		ECVF_Default);

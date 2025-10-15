@@ -16,7 +16,7 @@ public class GASP : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"NetCore",
-			"GameplayTags",
+			"GameplayTags", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

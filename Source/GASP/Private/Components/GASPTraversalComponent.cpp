@@ -22,12 +22,12 @@ namespace TraversalVar
 {
 	int32 DrawDebugLevel{0};
 	FAutoConsoleVariableRef DrawDebugLevelStruct(
-		TEXT("gasp.traversal.DrawDebugLevel.enabled"), DrawDebugLevel,
+		TEXT("gasp.traversal.DrawDebugLevel"), DrawDebugLevel,
 		TEXT("debug level for traversal"), ECVF_Default);
 
 	float DrawDebugDuration{0.f};
 	FAutoConsoleVariableRef DrawDebugDurationStruct(
-		TEXT("gasp.traversal.DrawDebugDuration.enabled"), DrawDebugDuration,
+		TEXT("gasp.traversal.DrawDebugDuration"), DrawDebugDuration,
 		TEXT("debug duration for traversal"), ECVF_Default);
 }
 

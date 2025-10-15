@@ -29,6 +29,7 @@ For more information, see the [Releases](https://github.com/Anaylan/GASP-Refacto
 | [1.8](https://github.com/Anaylan/GASP-Refactored/releases/tag/1.8) | 5.6                   |
 | [1.9](https://github.com/Anaylan/GASP-Refactored/releases/tag/1.9) | 5.6                   |
 | [1.10](https://github.com/Anaylan/GASP-Refactored/releases/tag/1.10) | 5.6                   |
+| [1.11](https://github.com/Anaylan/GASP-Refactored/releases/tag/1.11) | 5.6                   |
 
 **The plugin is developed and tested primarily on Windows, so use it on other platforms at your own risk.**
 
@@ -44,7 +45,7 @@ GASP provides several console commands for debugging and configuration. See [CON
 
 Quick reference:
 - `gasp.statemachine.enabled 1` - Enable experimental state machine
-- `gasp.traversal.DrawDebugLevel.enabled 1` - Enable traversal debug visualization
+- `gasp.traversal.DrawDebugLevel 1` - Enable traversal debug visualization
 - `gasp.DrawVisLogShapesForFoleySounds.enabled 1` - Enable foley sound debug shapes
 
 
