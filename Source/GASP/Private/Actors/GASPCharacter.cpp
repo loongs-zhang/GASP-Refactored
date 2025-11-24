@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Actors/GASPCharacter.h"
 #include "ChooserFunctionLibrary.h"
 #include "MotionWarpingComponent.h"
@@ -146,25 +144,27 @@ void AGASPCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void AGASPCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PrevCustomMode)
 {
+	if (MovementComponent)
+	{
+		// what to do with traversal?
+		switch (MovementComponent->MovementMode)
+		{
+		case MOVE_Walking:
+		case MOVE_NavWalking:
+		// traversal modes and root motion	
+		case MOVE_Flying:
+		case MOVE_None:
+			SetMovementMode(MovementModeTags::Grounded);
+			break;
+		case MOVE_Falling:
+			SetMovementMode(MovementModeTags::InAir);
+			break;
+		default:
+			SetMovementMode(FGameplayTag::EmptyTag);
+		}
+	}
+
 	Super::OnMovementModeChanged(PrevMovementMode, PrevCustomMode);
-
-	if (!ensure(MovementComponent))
-	{
-		return;
-	}
-
-	if (MovementComponent->IsMovingOnGround())
-	{
-		SetMovementMode(MovementModeTags::Grounded);
-	}
-	else if (MovementComponent->IsFalling())
-	{
-		SetMovementMode(MovementModeTags::InAir);
-	}
-	else if (MovementComponent == MOVE_None)
-	{
-		SetMovementMode(FGameplayTag::EmptyTag);
-	}
 }
 
 void AGASPCharacter::SetGait(const FGameplayTag NewGait, const bool bForce)
@@ -278,7 +278,7 @@ void AGASPCharacter::SetStanceMode(const FGameplayTag NewStanceMode, const bool 
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, StanceMode, this);
 
 		MovementComponent->SetStance(NewStanceMode);
-			
+
 		if (GetLocalRole() == ROLE_AutonomousProxy && IsValid(GetNetConnection()))
 		{
 			Server_SetStanceMode(NewStanceMode);

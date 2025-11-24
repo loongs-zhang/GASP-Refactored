@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Animation/Notifies/AnimNotifyState_MontageBlendOut.h"
+﻿#include "Animation/Notifies/AnimNotifyState_MontageBlendOut.h"
 #include "Actors/GASPCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Types/EnumTypes.h"
@@ -31,26 +28,24 @@ void UAnimNotifyState_MontageBlendOut::NotifyTick(USkeletalMeshComponent* MeshCo
 		return;
 	}
 
-	const auto* Character = static_cast<AGASPCharacter*>(MeshComp->GetOwner());
+	const auto Character = Cast<AGASPCharacter>(MeshComp->GetOwner());
 	if (!IsValid(Character))
 	{
 		return;
 	}
 
-	UAnimInstance* AnimInstance = MeshComp->GetAnimInstance();
+	auto* AnimInstance = MeshComp->GetAnimInstance();
 	if (!IsValid(AnimInstance))
 	{
 		return;
 	}
-
-	UAnimMontage* AnimMontage = Cast<UAnimMontage>(Animation);
 
 	const bool ShouldBlendOut = [&]()
 	{
 		switch (BlendOutCondition)
 		{
 		case ETraversalBlendOutCondition::WithMovementInput:
-			return !Character->GetReplicatedAcceleration().IsNearlyZero(.1f);
+			return !Character->GetReplicatedAcceleration().Equals(FVector::ZeroVector, .1f);
 		case ETraversalBlendOutCondition::IfFalling:
 			return Character->GetMovementMode() == MovementModeTags::InAir;
 		default:
@@ -58,10 +53,11 @@ void UAnimNotifyState_MontageBlendOut::NotifyTick(USkeletalMeshComponent* MeshCo
 		}
 	}();
 
-	if (ShouldBlendOut)
+	if (const auto* AnimMontage = Cast<UAnimMontage>(Animation); ShouldBlendOut)
 	{
-		FMontageBlendSettings BlendOutSettings{AnimMontage->BlendOut};
+		FMontageBlendSettings BlendOutSettings{};
 		BlendOutSettings.Blend.BlendTime = BlendOutTime;
+		BlendOutSettings.Blend.BlendOption = EAlphaBlendOption::HermiteCubic;
 		BlendOutSettings.BlendMode = EMontageBlendMode::Standard;
 		BlendOutSettings.BlendProfile = const_cast<UBlendProfile*>(AnimInstance->GetBlendProfileByName(BlendProfile));
 

@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "GASPCharacterExample.h"
+﻿#include "GASPCharacterExample.h"
 
 #include "Components/GASPTraversalComponent.h"
 #include "GameFramework/GameplayCameraComponent.h"

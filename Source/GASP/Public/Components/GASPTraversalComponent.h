@@ -1,11 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
-#include "Types/EnumTypes.h"
 #include "Types/StructTypes.h"
 #include "GASPTraversalComponent.generated.h"
 
@@ -173,11 +170,6 @@ public:
 
 protected:
 	/**
-	 * Callback executed when chooser data is asynchronously loaded
-	 */
-	void AsyncChooserLoaded();
-
-	/**
 	 * Called when the game starts or when spawned
 	 */
 	virtual void BeginPlay() override;
@@ -247,7 +239,7 @@ protected:
 
 	/** Tags that prevent specific traversal actions from being selected */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Traversal")
-	FName BannedTag{};
+	FName BannedTag{TEXT("Banned")};
 
 	/** Delay before re-enabling movement correction after traversal */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Traversal")
@@ -335,9 +327,7 @@ public:
 	 * @return Configured collision query parameters
 	 */
 	FCollisionQueryParams GetQueryParams() const;
-
-	UFUNCTION(BlueprintCallable, Category="Traversal")
-	bool CompareTag(TArray<FName> TagsToCompare) const;
+	
 	/**
 	 * Attempts to perform a traversal action based on input parameters
 	 * Performs environment detection, animation selection, and initiates traversal

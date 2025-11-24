@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Types/TagTypes.h"
+﻿#include "Types/TagTypes.h"
 
 namespace MovementModeTags
 {

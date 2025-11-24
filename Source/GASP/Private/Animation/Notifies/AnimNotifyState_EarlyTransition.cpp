@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Animation/Notifies/AnimNotifyState_EarlyTransition.h"
+﻿#include "Animation/Notifies/AnimNotifyState_EarlyTransition.h"
 #include "Animation/GASPAnimInstance.h"
 #include "Types/EnumTypes.h"
 #include "Utils/GASPBlueprintLibrary.h"

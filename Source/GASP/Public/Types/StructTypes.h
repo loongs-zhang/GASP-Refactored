@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "GameplayTags.h"
@@ -48,9 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,
 		meta = (Description = "X = Forward Speed, Y = Strafe Speed, Z = Backwards Speed"))
 	TMap<FGameplayTag, FVector> SpeedMap{
-			{GaitTags::Walk, {200.f, 180.f, 150.f}},
-			{GaitTags::Run, {450.f, 400.f, 350.f}},
-			{GaitTags::Sprint, {700.f, 0.f, 0.f}}
+		{GaitTags::Walk, {200.f, 180.f, 150.f}},
+		{GaitTags::Run, {450.f, 400.f, 350.f}},
+		{GaitTags::Sprint, {700.f, 0.f, 0.f}}
 	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -67,23 +65,25 @@ struct GASP_API FCharacterInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float MaxTurnAngle{50.f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Configuration")
+	float MaxTurnInPlaceAngle{50.f};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Configuration")
+	float SpinTransitionAngle{130.f};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Configuration")
+	float FlailRate{0.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (ClampMin = 0, ForceUnits = "s"))
 	float Speed{0.f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float AngleVelocity{0.f};
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float FlailRate{0.f};
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Information")
 	FVector Velocity{FVector::ZeroVector};
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Information")
 	FVector Acceleration{FVector::ZeroVector};
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Information")
 	FVector VelocityAcceleration{FVector::ZeroVector};
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Information")
 	FTransform RootTransform{FTransform::Identity};
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Information")
 	FTransform ActorTransform{FTransform::Identity};
 };
 
@@ -378,4 +378,17 @@ struct GASP_API FBlendStackMachine
 	bool bLoop{false};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASP", meta = (ClampMin = 0))
 	float AssetTimeRemaining{.0f};
+};
+
+USTRUCT(BlueprintType)
+struct GASP_API FPivotSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	FVector2D SpeedRange{FVector2D::ZeroVector};
+
+	UPROPERTY(EditAnywhere, Category = "Settings",
+		meta = (Description = "X = Minimum Speed, Y = Maximum Speed, Z = Minimum Angle, W = Maximum Angle"))
+	FVector4f RangeParams{FVector4f::Zero()};
 };

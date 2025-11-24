@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Components/GASPCharacterMovementComponent.h"
 #include "Curves/CurveVector.h"
 #include "GameFramework/Character.h"

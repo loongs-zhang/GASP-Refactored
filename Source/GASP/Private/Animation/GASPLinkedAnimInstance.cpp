@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Animation/GASPLinkedAnimInstance.h"
 #include "Actors/GASPCharacter.h"
 #include "Animation/GASPAnimInstance.h"

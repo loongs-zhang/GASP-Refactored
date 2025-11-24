@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "GameplayTagContainer.h"
@@ -26,7 +24,7 @@ protected:
 	TObjectPtr<class UChooserTable> OverlayTable{nullptr};
 	UPROPERTY(EditAnywhere, Category="PoseSearchData|Choosers", BlueprintReadOnly)
 	TObjectPtr<UChooserTable> PosesTable{nullptr};
-	
+
 	UPROPERTY(BlueprintReadOnly, Transient)
 	TObjectPtr<class UGASPCharacterMovementComponent> MovementComponent{};
 
@@ -137,7 +135,7 @@ public:
 
 	void LinkAnimInstance(const UChooserTable* DataTable, const FGameplayTag OldState, const FGameplayTag State);
 
-	
+
 	// Sets default values for this character's properties
 	explicit AGASPCharacter(const FObjectInitializer& ObjectInitializer);
 	AGASPCharacter() = default;
@@ -196,7 +194,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual bool CanSprint();
 
-	template<typename  T>
+	template <typename T>
 	T* GetTypedCharacterMovement() const;
 
 	UFUNCTION(BlueprintGetter)
