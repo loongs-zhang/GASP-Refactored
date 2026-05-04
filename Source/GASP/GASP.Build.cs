@@ -17,13 +17,13 @@ public class GASP : ModuleRules
 			"Engine",
 			"NetCore",
 			"GameplayTags",
-			"MotionWarping", 
+			"MotionWarping",
+			"PoseSearch", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"MotionTrajectory",
-			"PoseSearch",
 			"Chooser",
 			"AnimationWarpingRuntime",
 			"BlendStack",

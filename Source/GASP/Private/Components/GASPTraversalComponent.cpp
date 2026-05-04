@@ -8,10 +8,10 @@
 #include "Interfaces/GASPInteractionTransformInterface.h"
 #include "IObjectChooser.h"
 #include "MotionWarpingComponent.h"
+#include "Animation/AnimSubsystem_Tag.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/AssetManager.h"
-#include "PoseSearch/PoseSearchLibrary.h"
-#include "PoseSearch/PoseSearchResult.h"
+#include "PoseSearch/PoseSearchHistoryCollectorAnimNodeLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GASPTraversalComponent)
 
@@ -61,10 +61,7 @@ void UGASPTraversalComponent::BeginPlay()
 	MotionWarpingComponent = CharacterOwner->FindComponentByClass<UMotionWarpingComponent>();
 	CapsuleComponent = CharacterOwner->GetCapsuleComponent();
 	MeshComponent = CharacterOwner->GetMesh();
-	if (MeshComponent.IsValid())
-	{
-		AnimInstance = Cast<UGASPAnimInstance>(MeshComponent->GetAnimInstance());
-	}
+	if (MeshComponent.IsValid()) AnimInstance = MeshComponent->GetAnimInstance();
 
 	StreamableHandle = StreamableManager.RequestAsyncLoad(TraversalAnimationsChooserTable.ToSoftObjectPath(),
 	                                                      FStreamableDelegate::CreateLambda([this]()
@@ -371,18 +368,36 @@ FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInpu
 	ChooserParameters.ObstacleHeight = NewTraversalCheckResult.ObstacleHeight;
 	ChooserParameters.ObstacleDepth = NewTraversalCheckResult.ObstacleDepth;
 	ChooserParameters.BackLedgeHeight = NewTraversalCheckResult.BackLedgeHeight;
+	if (IAnimClassInterface* AnimBlueprintClass = IAnimClassInterface::GetFromClass(AnimInstance->GetClass()))
+	{
+		if (const FAnimSubsystem_Tag* TagSubsystem = AnimBlueprintClass->FindSubsystem<FAnimSubsystem_Tag>())
+		{
+			if (int32 Index = TagSubsystem->FindNodeIndexByTag(NAME_PoseHistory); INDEX_NONE != Index)
+			{
+				FAnimNodeReference AnimNode_PoseHistory(AnimInstance.Get(), Index);
+				FPoseSearchHistoryCollectorAnimNodeReference PoseSearchHistoryCollectorNode;
+				bool Result;
+				UPoseSearchHistoryCollectorAnimNodeLibrary::ConvertToPoseHistoryNodePure(
+					AnimNode_PoseHistory, PoseSearchHistoryCollectorNode, Result);
+				ChooserParameters.PoseHistory = UPoseSearchHistoryCollectorAnimNodeLibrary::GetPoseHistoryReference(
+					PoseSearchHistoryCollectorNode);
+			}
+		}
+	}
 
 	FTraversalChooserOutput ChooserOutput;
 	auto Context = UChooserFunctionLibrary::MakeChooserEvaluationContext();
 
+	Context.AddObjectParam(AnimInstance.Get());
 	Context.AddStructParam(ChooserParameters);
 	Context.AddStructParam(ChooserOutput);
-	auto AnimationMontages{
-		UChooserFunctionLibrary::EvaluateObjectChooserBaseMulti(
-			Context, UChooserFunctionLibrary::MakeEvaluateChooser(ChooserTable), UAnimMontage::StaticClass())
-	};
+	auto AnimationMontage = UChooserFunctionLibrary::EvaluateObjectChooserBase(
+		Context, UChooserFunctionLibrary::MakeEvaluateChooser(ChooserTable), UAnimMontage::StaticClass());
 
 	NewTraversalCheckResult.ActionType = ChooserOutput.ActionType;
+	NewTraversalCheckResult.StartTime = ChooserOutput.MontageStartTime;
+	NewTraversalCheckResult.ChosenMontage = static_cast<UAnimMontage*>(AnimationMontage);
+	NewTraversalCheckResult.PlayRate = 1.f;
 
 	/* Step 5.1: Continue if there is a valid action type. If none of the conditions were met, no action can be
 	 * performed, therefore exit the function. */
@@ -415,15 +430,7 @@ FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInpu
 		IGASPInteractionTransformInterface::Execute_SetInteractionTransform(AnimInstance.Get(), InteractionTransform);
 	}
 
-	/** Step 5.4: Perform a Motion Match on all the montages that were chosen by the chooser to find the best result.
-	 * This match will elect the best montage AND the best entry frame (start time) based on the distance to the ledge,
-	 * and the current characters pose. If for some reason no montage was found (motion matching failed, perhaps due to
-	 * an invalid database or issue with the schema), print a warning and exit the function. */
-	FPoseSearchBlueprintResult Result;
-	UPoseSearchLibrary::MotionMatch(AnimInstance.Get(), AnimationMontages, NAME_PoseHistory,
-	                                FPoseSearchContinuingProperties(), FPoseSearchFutureProperties(), Result);
-	const auto* AnimationMontage = Cast<UAnimMontage>(Result.SelectedAnim);
-	if (!IsValid(AnimationMontage))
+	if (!IsValid(NewTraversalCheckResult.ChosenMontage))
 	{
 #if WITH_EDITOR && ALLOW_CONSOLE
 		GEngine->AddOnScreenDebugMessage(NULL, TraversalVar::DrawDebugDuration, FColor::Red,
@@ -431,9 +438,6 @@ FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInpu
 #endif
 		return {true, false};
 	}
-	NewTraversalCheckResult.ChosenMontage = AnimationMontage;
-	NewTraversalCheckResult.StartTime = Result.SelectedTime;
-	NewTraversalCheckResult.PlayRate = Result.WantedPlayRate;
 
 	TraversalCheckResult = NewTraversalCheckResult;
 	PerformTraversalAction();
@@ -474,8 +478,8 @@ void UGASPTraversalComponent::Traversal_ServerImplementation(const FTraversalChe
 
 void UGASPTraversalComponent::OnTraversalStart()
 {
-	MovementComponent->bIgnoreClientMovementErrorChecksAndCorrection = true;
-	MovementComponent->bServerAcceptClientAuthoritativePosition = true;
+	// MovementComponent->bIgnoreClientMovementErrorChecksAndCorrection = true;
+	// MovementComponent->bServerAcceptClientAuthoritativePosition = true;
 }
 
 void UGASPTraversalComponent::OnRep_TraversalResult()
@@ -485,8 +489,8 @@ void UGASPTraversalComponent::OnRep_TraversalResult()
 
 void UGASPTraversalComponent::OnTraversalEnd() const
 {
-	MovementComponent->bIgnoreClientMovementErrorChecksAndCorrection = false;
-	MovementComponent->bServerAcceptClientAuthoritativePosition = false;
+	// MovementComponent->bIgnoreClientMovementErrorChecksAndCorrection = false;
+	// MovementComponent->bServerAcceptClientAuthoritativePosition = false;
 }
 
 void UGASPTraversalComponent::OnCompleteTraversal()

@@ -5,6 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PoseSearch/PoseSearchHistory.h"
 #include "Types/StructTypes.h"
 #include "GASPTraversalComponent.generated.h"
 
@@ -35,6 +36,9 @@ struct GASP_API FTraversalChooserInput
 	uint8 bHasBackLedge : 1{false};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traversal")
 	uint8 bHasBackFloor : 1{false};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Traversal")
+	FPoseHistoryReference PoseHistory{};
 };
 
 /**
@@ -46,7 +50,10 @@ struct GASP_API FTraversalChooserOutput
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTag ActionType;
+	FGameplayTag ActionType{FGameplayTag::EmptyTag};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MontageStartTime{0.f};
 };
 
 /**
