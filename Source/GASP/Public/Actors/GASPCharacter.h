@@ -88,10 +88,6 @@ protected:
 	                                              const FVector& PreviousFloorContactNormal,
 	                                              const FVector& PreviousLocation, float TimeDelta) override;
 
-	/** Please add a function description */
-	UFUNCTION(BlueprintPure, Category = "Traversal")
-	struct FTraversalCheckInputs GetTraversalCheckInputs() const;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta=(ClampMin="0.0", ClampMax="1.0"))
 	float AnalogMovementThreshold{.7f};
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")

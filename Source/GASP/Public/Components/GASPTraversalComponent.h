@@ -319,6 +319,12 @@ public:
 	 * @return Configured collision query parameters
 	 */
 	FCollisionQueryParams GetQueryParams() const;
+
+	UFUNCTION(BlueprintCallable, Category="Traversal")
+	FTraversalResult TryTraversal();
+
+	UFUNCTION(BlueprintPure, Category = "Traversal")
+	FTraversalCheckInputs GetTraversalCheckInputs() const;
 	
 	/**
 	 * Attempts to perform a traversal action based on input parameters

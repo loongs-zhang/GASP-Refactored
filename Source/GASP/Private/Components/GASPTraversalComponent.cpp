@@ -151,6 +151,32 @@ void UGASPTraversalComponent::UpdateWarpTargets()
 	}
 }
 
+FTraversalResult UGASPTraversalComponent::TryTraversal()
+{
+	return TryTraversalAction(GetTraversalCheckInputs());
+}
+
+FTraversalCheckInputs UGASPTraversalComponent::GetTraversalCheckInputs() const
+{
+	const FVector ForwardVector{CharacterOwner->GetActorForwardVector()};
+	if (MovementComponent->IsFalling())
+	{
+		return {
+			ForwardVector, 75.f, FVector::ZeroVector,
+			{0.f, 0.f, 50.f}, 30.f, 86.f
+		};
+	}
+
+	const FVector RotationVector = CharacterOwner->GetActorRotation().UnrotateVector(MovementComponent->Velocity);
+	const float ClampedDistance = FMath::GetMappedRangeValueClamped<float, float>(
+		{0.f, 500.f}, {75.f, 350.f}, RotationVector.X);
+
+	return {
+		ForwardVector, ClampedDistance, FVector::ZeroVector,
+		FVector::ZeroVector, 30.f, 60.f
+	};
+}
+
 FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInputs CheckInputs)
 {
 	if (!CharacterOwner.IsValid())
