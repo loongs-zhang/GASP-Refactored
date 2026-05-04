@@ -8,7 +8,6 @@
 #include "Interfaces/GASPInteractionTransformInterface.h"
 #include "IObjectChooser.h"
 #include "MotionWarpingComponent.h"
-#include "PlayMontageCallbackProxy.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/AssetManager.h"
 #include "PoseSearch/PoseSearchLibrary.h"
@@ -52,13 +51,13 @@ void UGASPTraversalComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CharacterOwner = Cast<AGASPCharacter>(GetOwner());
+	CharacterOwner = Cast<ACharacter>(GetOwner());
 	if (!CharacterOwner.IsValid())
 	{
 		return;
 	}
 
-	MovementComponent = CharacterOwner->FindComponentByClass<UGASPCharacterMovementComponent>();
+	MovementComponent = CharacterOwner->GetCharacterMovement();
 	MotionWarpingComponent = CharacterOwner->FindComponentByClass<UMotionWarpingComponent>();
 	CapsuleComponent = CharacterOwner->GetCapsuleComponent();
 	MeshComponent = CharacterOwner->GetMesh();
@@ -75,7 +74,7 @@ void UGASPTraversalComponent::BeginPlay()
 	                                                      FStreamableManager::DefaultAsyncLoadPriority, false);
 }
 
-void UGASPTraversalComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void UGASPTraversalComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -338,7 +337,6 @@ FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInpu
 	auto* ChooserTable{TraversalAnimationsChooserTable.LoadSynchronous()};
 	FTraversalChooserInput ChooserParameters;
 	ChooserParameters.ActionType = NewTraversalCheckResult.ActionType;
-	ChooserParameters.Gait = CharacterOwner->GetGait();
 	ChooserParameters.Speed = CharacterOwner->GetVelocity().Size2D();
 	ChooserParameters.MovementMode = MovementComponent->MovementMode;
 	ChooserParameters.bHasBackFloor = NewTraversalCheckResult.bHasBackFloor;
