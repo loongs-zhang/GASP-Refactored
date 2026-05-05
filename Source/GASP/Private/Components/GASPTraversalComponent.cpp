@@ -8,9 +8,9 @@
 #include "Interfaces/GASPInteractionTransformInterface.h"
 #include "IObjectChooser.h"
 #include "MotionWarpingComponent.h"
-#include "Animation/AnimSubsystem_Tag.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/AssetManager.h"
+#include "PoseSearch/AnimNode_PoseSearchHistoryCollector.h"
 #include "PoseSearch/PoseSearchHistoryCollectorAnimNodeLibrary.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(GASPTraversalComponent)
@@ -368,27 +368,17 @@ FTraversalResult UGASPTraversalComponent::TryTraversalAction(FTraversalCheckInpu
 	ChooserParameters.ObstacleHeight = NewTraversalCheckResult.ObstacleHeight;
 	ChooserParameters.ObstacleDepth = NewTraversalCheckResult.ObstacleDepth;
 	ChooserParameters.BackLedgeHeight = NewTraversalCheckResult.BackLedgeHeight;
-	if (IAnimClassInterface* AnimBlueprintClass = IAnimClassInterface::GetFromClass(AnimInstance->GetClass()))
+	if (const FAnimNode_PoseSearchHistoryCollector_Base* PoseHistoryNode = UPoseSearchLibrary::FindPoseHistoryNode(
+		NAME_PoseHistory, AnimInstance.Get()))
 	{
-		if (const FAnimSubsystem_Tag* TagSubsystem = AnimBlueprintClass->FindSubsystem<FAnimSubsystem_Tag>())
-		{
-			if (int32 Index = TagSubsystem->FindNodeIndexByTag(NAME_PoseHistory); INDEX_NONE != Index)
-			{
-				FAnimNodeReference AnimNode_PoseHistory(AnimInstance.Get(), Index);
-				FPoseSearchHistoryCollectorAnimNodeReference PoseSearchHistoryCollectorNode;
-				bool Result;
-				UPoseSearchHistoryCollectorAnimNodeLibrary::ConvertToPoseHistoryNodePure(
-					AnimNode_PoseHistory, PoseSearchHistoryCollectorNode, Result);
-				ChooserParameters.PoseHistory = UPoseSearchHistoryCollectorAnimNodeLibrary::GetPoseHistoryReference(
-					PoseSearchHistoryCollectorNode);
-			}
-		}
+		ChooserParameters.PoseHistory = FPoseHistoryReference{
+			MakeShared<UE::PoseSearch::FPoseHistory>(PoseHistoryNode->GetPoseHistory())
+		};
 	}
 
 	FTraversalChooserOutput ChooserOutput;
 	auto Context = UChooserFunctionLibrary::MakeChooserEvaluationContext();
 
-	Context.AddObjectParam(AnimInstance.Get());
 	Context.AddStructParam(ChooserParameters);
 	Context.AddStructParam(ChooserOutput);
 	auto AnimationMontage = UChooserFunctionLibrary::EvaluateObjectChooserBase(
