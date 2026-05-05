@@ -431,7 +431,7 @@ FTraversalResult AGASPCharacter::TryTraversalAction() const
 {
 	if (IsValid(TraversalComponent))
 	{
-		return TraversalComponent->TryTraversalAction(GetTraversalCheckInputs());
+		return TraversalComponent->TryTraversal();
 	}
 
 	return {true, false};
@@ -440,27 +440,6 @@ FTraversalResult AGASPCharacter::TryTraversalAction() const
 bool AGASPCharacter::IsDoingTraversal() const
 {
 	return IsValid(TraversalComponent) && TraversalComponent->IsDoingTraversal();
-}
-
-FTraversalCheckInputs AGASPCharacter::GetTraversalCheckInputs() const
-{
-	const FVector ForwardVector{GetActorForwardVector()};
-	if (MovementMode == MovementModeTags::InAir)
-	{
-		return {
-			ForwardVector, 75.f, FVector::ZeroVector,
-			{0.f, 0.f, 50.f}, 30.f, 86.f
-		};
-	}
-
-	const FVector RotationVector = GetActorRotation().UnrotateVector(MovementComponent->Velocity);
-	const float ClampedDistance = FMath::GetMappedRangeValueClamped<float, float>(
-		{0.f, 500.f}, {75.f, 350.f}, RotationVector.X);
-
-	return {
-		ForwardVector, ClampedDistance, FVector::ZeroVector,
-		FVector::ZeroVector, 30.f, 60.f
-	};
 }
 
 void AGASPCharacter::LinkAnimInstance(const UChooserTable* DataTable, const FGameplayTag OldState,
