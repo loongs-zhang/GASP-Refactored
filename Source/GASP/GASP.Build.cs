@@ -16,20 +16,20 @@ public class GASP : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"NetCore",
-			"GameplayTags", 
+			"GameplayTags",
+			"MotionWarping",
+			"PoseSearch", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"MotionTrajectory",
-			"PoseSearch",
 			"Chooser",
 			"AnimationWarpingRuntime",
 			"BlendStack",
 			"PhysicsCore",
 			"AnimGraphRuntime",
 			"Niagara",
-			"MotionWarping",
 		});
 
 		if (Target.Type == TargetRules.TargetType.Editor)
