@@ -4,6 +4,7 @@
 #include "MotionWarpingComponent.h"
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Types/StructTypes.h"
 #include "GASPTraversalComponent.generated.h"

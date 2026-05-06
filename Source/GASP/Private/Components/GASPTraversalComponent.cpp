@@ -1,5 +1,4 @@
 ﻿#include "Components/GASPTraversalComponent.h"
-#include "Actors/GASPCharacter.h"
 #include "AnimationWarpingLibrary.h"
 #include "ChooserFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
