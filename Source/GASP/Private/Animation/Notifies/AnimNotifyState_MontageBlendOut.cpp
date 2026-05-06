@@ -1,5 +1,6 @@
 ﻿#include "Animation/Notifies/AnimNotifyState_MontageBlendOut.h"
-#include "Actors/GASPCharacter.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Types/EnumTypes.h"
 
@@ -22,32 +23,21 @@ void UAnimNotifyState_MontageBlendOut::NotifyTick(USkeletalMeshComponent* MeshCo
                                                   float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
-
-	if (!IsValid(MeshComp))
-	{
-		return;
-	}
-
-	const auto Character = Cast<AGASPCharacter>(MeshComp->GetOwner());
-	if (!IsValid(Character))
-	{
-		return;
-	}
-
+	if (!IsValid(MeshComp)) return;
+	const auto Character = Cast<ACharacter>(MeshComp->GetOwner());
+	if (!IsValid(Character)) return;
+	const UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
+	if (!IsValid(CharacterMovement)) return;
 	auto* AnimInstance = MeshComp->GetAnimInstance();
-	if (!IsValid(AnimInstance))
-	{
-		return;
-	}
-
+	if (!IsValid(AnimInstance)) return;
 	const bool ShouldBlendOut = [&]()
 	{
 		switch (BlendOutCondition)
 		{
 		case ETraversalBlendOutCondition::WithMovementInput:
-			return !Character->GetReplicatedAcceleration().Equals(FVector::ZeroVector, .1f);
+			return !CharacterMovement->GetCurrentAcceleration().Equals(FVector::ZeroVector, .1f);
 		case ETraversalBlendOutCondition::IfFalling:
-			return Character->GetMovementMode() == MovementModeTags::InAir;
+			return CharacterMovement->IsFalling();
 		default:
 			return true;
 		}

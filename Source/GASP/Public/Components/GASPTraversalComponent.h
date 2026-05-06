@@ -1,18 +1,13 @@
 ﻿#pragma once
 
 #include "GameplayTagContainer.h"
+#include "MotionWarpingComponent.h"
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Types/StructTypes.h"
 #include "GASPTraversalComponent.generated.h"
-
-
-class UGASPAnimInstance;
-class UCapsuleComponent;
-class USplineComponent;
-class UMotionWarpingComponent;
-class UGASPCharacterMovementComponent;
-class AGASPCharacter;
 
 /**
  * Input structure for the traversal chooser system that determines which traversal animations to play
@@ -24,8 +19,6 @@ struct GASP_API FTraversalChooserInput
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Traversal")
 	FGameplayTag ActionType{FGameplayTag::EmptyTag};
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Traversal")
-	FGameplayTag Gait{FGameplayTag::EmptyTag};
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Traversal")
 	TEnumAsByte<EMovementMode> MovementMode{MOVE_None};
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Traversal")
@@ -178,7 +171,7 @@ protected:
 	 * Configures network replication for this component
 	 * @param OutLifetimeProps Array of lifetime replicated properties
 	 */
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/** 
 	 * Processes motion warping for a traversal movement by extracting curve values
@@ -327,6 +320,12 @@ public:
 	 * @return Configured collision query parameters
 	 */
 	FCollisionQueryParams GetQueryParams() const;
+
+	UFUNCTION(BlueprintCallable, Category="Traversal")
+	FTraversalResult TryTraversal();
+
+	UFUNCTION(BlueprintPure, Category = "Traversal")
+	FTraversalCheckInputs GetTraversalCheckInputs() const;
 	
 	/**
 	 * Attempts to perform a traversal action based on input parameters
@@ -363,10 +362,10 @@ public:
 
 private:
 	UPROPERTY(Transient)
-	TWeakObjectPtr<AGASPCharacter> CharacterOwner{};
+	TWeakObjectPtr<ACharacter> CharacterOwner{};
 
 	UPROPERTY(Transient)
-	TWeakObjectPtr<UGASPCharacterMovementComponent> MovementComponent{};
+	TWeakObjectPtr<UCharacterMovementComponent> MovementComponent{};
 
 	UPROPERTY(Transient)
 	TWeakObjectPtr<UMotionWarpingComponent> MotionWarpingComponent{};
@@ -378,5 +377,5 @@ private:
 	TWeakObjectPtr<USkeletalMeshComponent> MeshComponent{};
 
 	UPROPERTY(Transient)
-	TWeakObjectPtr<UGASPAnimInstance> AnimInstance{};
+	TWeakObjectPtr<UAnimInstance> AnimInstance{};
 };
